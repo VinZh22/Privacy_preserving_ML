@@ -58,7 +58,7 @@ def split_into_random_subsets(X, y, num_subsets=10, random_state=42):
     
     return subsets_X, subsets_y
 
-def stepForward(theta: np.ndarray, X: np.ndarray, y: np.ndarray, num_agents: int = 10, mu = 0.05, c = None, G = None, D = None) -> np.ndarray:
+def stepForward(theta: np.ndarray, X: np.ndarray, y: np.ndarray, num_agents: int = 10, mu = 0.05, c = np.ndarray, G = np.ndarray, D = np.ndarray) -> np.ndarray:
     for i in range(num_agents):
         L_i = 0.25 * np.sum(np.linalg.norm(X[i], axis=1)**2)
         alpha = 1/(1 + mu * c[i] * L_i)
@@ -75,4 +75,19 @@ def stepForward(theta: np.ndarray, X: np.ndarray, y: np.ndarray, num_agents: int
 def stepForwardMono(theta: np.ndarray, X: np.ndarray, y: np.ndarray) -> np.ndarray:
     L_i = 0.25 * np.sum(np.linalg.norm(X, axis=1)**2)    
     theta = theta - (1/L_i) * lr.compute_grad(theta, X, y)
+    return theta
+
+
+def stepForward_2(theta: np.ndarray, X: np.ndarray, y: np.ndarray, i: int, num_agents: int = 10, mu = 0.05, c = np.ndarray, G = np.ndarray, D = np.ndarray) -> np.ndarray: # y'a probleme dans la gueule de theta
+
+    L_i = 0.25 * np.sum(np.linalg.norm(X[i], axis=1)**2)
+    alpha = 1/(1 + mu * c[i] * L_i)
+    terme = 0
+    for j in range(num_agents):
+        if G[i,j] == 1:
+            terme += (G[i,j] / D[i]) * theta[j]
+    terme -= mu * c[i] * lr.compute_grad(theta[i], X[i], y[i])
+    
+    theta[i] = (1-alpha) * theta[i] + alpha * terme
+    
     return theta
