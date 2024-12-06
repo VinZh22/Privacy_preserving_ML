@@ -21,3 +21,20 @@ def plot_curves(num_agents: int, costs_train: np.ndarray, costs_test: np.ndarray
     plt.title(title)
     plt.legend()
     plt.show()
+
+def reduce_cost_matrix(costs):
+    # Find the count of non-zero elements in each column
+    non_zero_counts = [np.sum(costs[:, col] != 0) for col in range(costs.shape[1])]
+
+    # Determine the minimum number of non-zero elements across all columns
+    min_non_zero_count = min(non_zero_counts)
+
+    # Create a reduced array with the determined size
+    reduced_array = np.zeros((min_non_zero_count, costs.shape[1]))
+
+    # Extract the first `min_non_zero_count` non-zero elements from each column
+    for col in range(costs.shape[1]):
+        non_zero_elements = costs[:, col][costs[:, col] != 0]
+        reduced_array[:, col] = non_zero_elements[:min_non_zero_count]
+    
+    return reduced_array
