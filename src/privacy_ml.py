@@ -91,3 +91,20 @@ def stepForward_2(theta: np.ndarray, X: np.ndarray, y: np.ndarray, i: int, num_a
     theta[i] = (1-alpha) * theta[i] + alpha * terme
     
     return theta
+
+def stepForwardPrivate(theta: np.ndarray, X: np.ndarray, y: np.ndarray, num_agents: int = 10, mu = 0.05, c = np.ndarray, G = np.ndarray, D = np.ndarray, L_0 = np.ndarray, epsilon = np.ndarray) -> np.ndarray:
+    for i in range(num_agents):
+        L_i = 0.25 * np.sum(np.linalg.norm(X[i], axis=1)**2)
+        alpha = 1/(1 + mu * c[i] * L_i)
+        terme = 0
+        for j in range(num_agents):
+            if G[i,j] == 1:
+                terme += (G[i,j] / D[i]) * theta[j]
+        terme -= mu * c[i] * lr.compute_grad(theta[i], X[i], y[i])
+        s = 2 * L_0 / (epsilon * X[i].shape[0])
+        noise = np.random.laplace(0, s, theta[i].shape[0])
+        
+        terme += noise
+        theta[i] = (1-alpha) * theta[i] + alpha * terme
+    
+    return theta
