@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.ndimage import uniform_filter1d
 
 def plot_curves(num_agents: int, costs_train: np.ndarray, costs_test: np.ndarray, title: str):
     fig, axes = plt.subplots(nrows=2, ncols=int(num_agents/2), figsize=(20, 4))
@@ -23,21 +24,39 @@ def plot_curves(num_agents: int, costs_train: np.ndarray, costs_test: np.ndarray
     plt.show()
 
 def plot_curves_non_zero(num_agents: int, costs_train: np.ndarray, costs_test: np.ndarray, title: str):
+    # Determine the maximum length of non-zero elements for any agent
+    max_length = max(np.sum(costs_train != 0, axis=0).max(), np.sum(costs_test != 0, axis=0).max())
+
     fig, axes = plt.subplots(nrows=2, ncols=int(num_agents/2), figsize=(20, 4))
 
     for i in range(num_agents):
         row = i // (num_agents // 2)
         col = i % (num_agents // 2)
-        axes[row, col].plot(costs_train[:, i][costs_train[:, i] != 0], label='Train')
-        axes[row, col].plot(costs_test[:, i][costs_test[:, i] != 0], label='Test')
+        train_data = costs_train[:, i][costs_train[:, i] != 0]
+        test_data = costs_test[:, i][costs_test[:, i] != 0]
+        axes[row, col].plot(np.arange(len(train_data)), train_data, label='Train')
+        axes[row, col].plot(np.arange(len(test_data)), test_data, label='Test')
+        axes[row, col].set_xlim(0, max_length)
         axes[row, col].set_title(f'Agent {i+1}')
 
     plt.tight_layout()
     plt.legend()
     plt.show()
 
-    train_mean = np.mean(costs_train, axis=1)
-    test_mean = np.mean(costs_test, axis=1)
+        # Mask for non-zero (active) values
+    active_mask_train = costs_train != 0
+    active_mask_test = costs_test != 0
+
+    # Compute the mean over agents at each timestep, ignoring zeros
+    train_mean = np.sum(costs_train, axis=1) / np.sum(active_mask_train, axis=1)
+    test_mean = np.sum(costs_test, axis=1) / np.sum(active_mask_test, axis=1)
+
+    # Replace NaN values (if any timesteps had no active agents) with 0
+    train_mean = np.nan_to_num(train_mean)
+    test_mean = np.nan_to_num(test_mean)
+
+    # train_mean = np.mean(costs_train, axis=1)
+    # test_mean = np.mean(costs_test, axis=1)
 
     plt.plot(train_mean[train_mean != 0], label="Avg Train")
     plt.plot(test_mean[test_mean != 0], label="Avg Test")

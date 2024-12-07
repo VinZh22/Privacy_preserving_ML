@@ -36,7 +36,7 @@ def cost(theta: np.ndarray, X: np.ndarray, y: np.ndarray) -> float:
     z = X @ theta
     return -np.sum( y * np.log(sigmoid(z)) + (1 - y)*np.log(1 - sigmoid(z)) ) / X.shape[0]
 
-def costDecentralized(theta: np.ndarray, X: np.ndarray, y: np.ndarray, G : np.ndarray, D : np.ndarray, c : np.ndarray, mu: np.ndarray) -> float:
+def costDecentralized(theta: np.ndarray, X: np.ndarray, y: np.ndarray, num_agents: np.ndarray, G : np.ndarray, D : np.ndarray, c : np.ndarray, mu: np.ndarray) -> float:
     """    
     Parameters
     ----------
@@ -53,13 +53,12 @@ def costDecentralized(theta: np.ndarray, X: np.ndarray, y: np.ndarray, G : np.nd
         The sum of the cost for each sample
     """
     terme = 0
-    Nb_model = len(X)
-    for i in range(Nb_model):
-        for j in range(i+1, Nb_model):
+    for i in range(num_agents):
+        for j in range(i+1, num_agents):
             terme += G[i,j] * np.linalg.norm(theta[i] - theta[j])**2
     
     terme2 = 0
-    for i in range(Nb_model):
+    for i in range(num_agents):
         terme2 += D[i] * c[i] * cost(theta[i], X[i], y[i])
     
     return 0.5 * terme + mu * terme2
