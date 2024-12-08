@@ -108,16 +108,10 @@ def accuracy(theta: np.ndarray, X: np.ndarray, y: np.ndarray):
     return np.mean(predictions == y)
 
 
-# Doesnt work yet
-# def accuracyAll(num_agents: int, theta, X, y):
-#     predictions = []
-#     individual_acc = []
-#     for i in range(num_agents):
-#         probabilities = sigmoid(X[i] @ theta[i])
-#         predictions.append((probabilities >= 0.5).astype(int))
-#         individual_acc.append(np.mean(predictions[i] == y[i]))
 
-#     total_acc_mean = np.mean(individual_acc)
-#     total_acc_median = np.mean(np.median(predictions) == y)
-
-#     return [total_acc_mean, total_acc_median]
+def accuracyAll(num_agents, theta, X, y) -> float:
+    individual_acc = np.zeros((num_agents))
+    for i in range(num_agents):
+        individual_acc[i] = accuracy(theta[i], X[i], y[i])
+    acc = np.mean(individual_acc)
+    return acc
