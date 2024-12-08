@@ -1,16 +1,25 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.ndimage import uniform_filter1d
+from typing import Optional
 
-def plot_curves(num_agents: int, costs_train_agents: np.ndarray, costs_test_agents: np.ndarray, costs_train: np.ndarray, costs_test: np.ndarray, title: str):
-    fig, axes = plt.subplots(nrows=2, ncols=int(num_agents/2), figsize=(20, 4))
+
+def plot_curves(
+    num_agents: int,
+    costs_train_agents: np.ndarray,
+    costs_test_agents: np.ndarray,
+    costs_train: np.ndarray,
+    costs_test: np.ndarray,
+    title: str,
+):
+    fig, axes = plt.subplots(nrows=2, ncols=int(num_agents / 2), figsize=(20, 4))
 
     for i in range(num_agents):
         row = i // (num_agents // 2)
         col = i % (num_agents // 2)
-        axes[row, col].plot(costs_train_agents[:, i], label='Train')
-        axes[row, col].plot(costs_test_agents[:, i], label='Test')
-        axes[row, col].set_title(f'Agent {i+1}')
+        axes[row, col].plot(costs_train_agents[:, i], label="C_Train")
+        axes[row, col].plot(costs_test_agents[:, i], label="C_Test")
+        axes[row, col].set_title(f"Agent {i+1}")
+        
 
     plt.tight_layout()
     plt.suptitle(title, fontsize="x-large")
@@ -20,18 +29,50 @@ def plot_curves(num_agents: int, costs_train_agents: np.ndarray, costs_test_agen
 
     fig, axs = plt.subplots(1, 2, figsize=(10, 4))  # Specify the figsize here
 
-    axs[0].plot(np.mean(costs_train_agents, axis=1), label="Avg Train")
-    axs[0].plot(np.mean(costs_test_agents, axis=1), label="Avg Test")
+    axs[0].plot(np.mean(costs_train_agents, axis=1), label="C_Train")
+    axs[0].plot(np.mean(costs_test_agents, axis=1), label="C_Test")
     axs[0].set_title(title + " (mean)")
 
     axs[1].plot(costs_train, label="Train")
     axs[1].plot(costs_test, label="Test")
     axs[1].set_title(title)
 
+
     for ax in axs:
         ax.legend()
 
     plt.show()
+
+
+def plot_accuracy(
+    num_agents: int,
+    acc_train_agents: np.ndarray,
+    acc_test_agents: np.ndarray,
+    title: str,
+):
+    fig, axes = plt.subplots(nrows=2, ncols=int(num_agents / 2), figsize=(20, 4))
+
+    for i in range(num_agents):
+        row = i // (num_agents // 2)
+        col = i % (num_agents // 2)
+        axes[row, col].plot(acc_train_agents[:, i], label="Train")
+        axes[row, col].plot(acc_test_agents[:, i], label="Test")
+        axes[row, col].set_title(f"Agent {i+1}")
+        axes[row, col].set_ylim(0, 1)
+
+    plt.tight_layout()
+    plt.suptitle(title, fontsize="x-large")
+    fig.subplots_adjust(top=0.85)
+    plt.legend()
+    plt.show()
+
+    plt.plot(np.mean(acc_train_agents, axis=1), label="Avg Train")
+    plt.plot(np.mean(acc_test_agents, axis=1), label="Avg Test")
+    plt.title(title + " (mean)")
+    plt.ylim(0, 1)
+    plt.legend()
+    plt.show()
+
 
 def propagate_last_value(arr):
     # Create a copy to propagate values
@@ -45,21 +86,32 @@ def propagate_last_value(arr):
                 last_value = propagated[row, col]
     return propagated
 
-def plot_curves_non_zero(num_agents: int, costs_train_agents: np.ndarray, costs_test_agents: np.ndarray, costs_train: np.ndarray, costs_test: np.ndarray, title: str):
-    # Determine the maximum length of non-zero elements for any agent
-    max_length = max(np.sum(costs_train_agents != 0, axis=0).max(), np.sum(costs_test_agents != 0, axis=0).max())
 
-    fig, axes = plt.subplots(nrows=2, ncols=int(num_agents/2), figsize=(20, 4))
+def plot_curves_non_zero(
+    num_agents: int,
+    costs_train_agents: np.ndarray,
+    costs_test_agents: np.ndarray,
+    costs_train: np.ndarray,
+    costs_test: np.ndarray,
+    title: str,
+):
+    # Determine the maximum length of non-zero elements for any agent
+    max_length = max(
+        np.sum(costs_train_agents != 0, axis=0).max(),
+        np.sum(costs_test_agents != 0, axis=0).max(),
+    )
+
+    fig, axes = plt.subplots(nrows=2, ncols=int(num_agents / 2), figsize=(20, 4))
 
     for i in range(num_agents):
         row = i // (num_agents // 2)
         col = i % (num_agents // 2)
         train_data = costs_train_agents[:, i][costs_train_agents[:, i] != 0]
         test_data = costs_test_agents[:, i][costs_test_agents[:, i] != 0]
-        axes[row, col].plot(np.arange(len(train_data)), train_data, label='Train')
-        axes[row, col].plot(np.arange(len(test_data)), test_data, label='Test')
+        axes[row, col].plot(np.arange(len(train_data)), train_data, label="Train")
+        axes[row, col].plot(np.arange(len(test_data)), test_data, label="Test")
         axes[row, col].set_xlim(0, max_length)
-        axes[row, col].set_title(f'Agent {i+1}')
+        axes[row, col].set_title(f"Agent {i+1}")
 
     plt.tight_layout()
     plt.suptitle(title, fontsize="x-large")
@@ -95,9 +147,9 @@ def plot_curves_non_zero(num_agents: int, costs_train_agents: np.ndarray, costs_
     for ax in axs:
         ax.legend()
 
+
 def reduce_cost_matrix(costs):
-    """Reduces the shape of the cost matrix the minimal number of non-zero elements of an agent
-    """    
+    """Reduces the shape of the cost matrix the minimal number of non-zero elements of an agent"""
     # Find the count of non-zero elements in each column
     non_zero_counts = [np.sum(costs[:, col] != 0) for col in range(costs.shape[1])]
 
@@ -111,26 +163,31 @@ def reduce_cost_matrix(costs):
     for col in range(costs.shape[1]):
         non_zero_elements = costs[:, col][costs[:, col] != 0]
         reduced_array[:, col] = non_zero_elements[:min_non_zero_count]
-    
+
     return reduced_array
 
-def shift_non_zero_costs_to_front(costs): 
+
+def shift_non_zero_costs_to_front(costs):
     """
     Reduces the array size to the max number of non-zero elements after shifting
     non-zero elements to the front for each column.
     """
     # Calculate the number of non-zero elements in each column
     non_zero_counts = np.count_nonzero(costs, axis=0)
-    
+
     # Determine the maximum number of non-zero elements across all columns
     max_non_zero = np.max(non_zero_counts)
-    
+
     # Initialize a new array with reduced size
     reduced_array = np.zeros((max_non_zero, costs.shape[1]), dtype=costs.dtype)
-    
+
     # For each column, extract the non-zero elements and place them at the start
     for col in range(costs.shape[1]):
-        non_zero_elements = costs[:, col][costs[:, col] != 0]  # Extract non-zero elements
-        reduced_array[:len(non_zero_elements), col] = non_zero_elements  # Place at the start
-    
+        non_zero_elements = costs[:, col][
+            costs[:, col] != 0
+        ]  # Extract non-zero elements
+        reduced_array[: len(non_zero_elements), col] = (
+            non_zero_elements  # Place at the start
+        )
+
     return reduced_array

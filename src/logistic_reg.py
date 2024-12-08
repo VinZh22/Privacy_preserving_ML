@@ -81,3 +81,26 @@ def compute_grad(theta: np.ndarray, X:np.ndarray, y:np.ndarray) -> np.ndarray:
         The gradient, of shape (n_features,)
     """
     return np.sum((sigmoid(X @ theta) - y) * X.T, axis=1)
+
+def accuracy(theta: np.ndarray, X: np.ndarray, y: np.ndarray):
+    # Compute probabilities
+    probabilities = sigmoid(X @ theta)
+    
+    # Make predictions (threshold at 0.5)
+    predictions = (probabilities >= 0.5).astype(int)
+
+    return np.mean(predictions == y)
+
+# Doesnt work yet
+# def accuracyAll(num_agents: int, theta, X, y):
+#     predictions = []
+#     individual_acc = []
+#     for i in range(num_agents):
+#         probabilities = sigmoid(X[i] @ theta[i])
+#         predictions.append((probabilities >= 0.5).astype(int))
+#         individual_acc.append(np.mean(predictions[i] == y[i]))
+    
+#     total_acc_mean = np.mean(individual_acc)
+#     total_acc_median = np.mean(np.median(predictions) == y)
+
+#     return [total_acc_mean, total_acc_median]
