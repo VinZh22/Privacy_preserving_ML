@@ -58,7 +58,7 @@ def plot_accuracy(
         axes[row, col].plot(acc_train_agents[:, i], label="Train")
         axes[row, col].plot(acc_test_agents[:, i], label="Test")
         axes[row, col].set_title(f"Agent {i+1}")
-        axes[row, col].set_ylim(0, 1)
+        axes[row, col].set_ylim(0, 1.1)
 
     plt.tight_layout()
     plt.suptitle(title, fontsize="x-large")
