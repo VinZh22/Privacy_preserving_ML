@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import accuracy_score
 
 
 def sigmoid(z: np.ndarray) -> np.ndarray:
@@ -105,7 +106,7 @@ def accuracy(theta: np.ndarray, X: np.ndarray, y: np.ndarray):
     # Make predictions (threshold at 0.5)
     predictions = (probabilities >= 0.5).astype(int)
 
-    return np.mean(predictions == y)
+    return accuracy_score(y, predictions)
 
 
 
