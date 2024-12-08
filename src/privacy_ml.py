@@ -116,7 +116,7 @@ def stepForwardPrivate(theta: np.ndarray, X: np.ndarray, y: np.ndarray, num_agen
     return theta
 
 
-def stepForwardPrivate_2 (theta: np.ndarray, X: np.ndarray, y: np.ndarray, i: int, num_agents: int = 10, mu = 0.05, c = np.ndarray, G = np.ndarray, D = np.ndarray, L_0 = np.ndarray, epsilon = np.ndarray) -> np.ndarray:
+def stepForwardPrivate_2 (theta: np.ndarray, X: np.ndarray, y: np.ndarray, i: int, num_agents: int = 10, mu = 0.05, c = np.ndarray, G = np.ndarray, D = np.ndarray, L_0 = np.ndarray, epsilon = float) -> np.ndarray:
     L_i = 0.25 * np.sum(np.linalg.norm(X[i], axis=1)**2)
     alpha = 1/(1 + mu * c[i] * L_i)
     terme = 0
