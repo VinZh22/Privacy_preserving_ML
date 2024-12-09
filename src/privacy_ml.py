@@ -78,7 +78,7 @@ def stepForward(
         alpha = 1 / (1 + mu * c[i] * L_i)
         terme = 0
         for j in range(num_agents):
-            if G[i, j] == 1:
+            if G[i, j] > 0:
                 terme += (G[i, j] / D[i]) * theta[j]
         terme -= mu * c[i] * lr.compute_grad(theta[i], X[i], y[i])
 
@@ -121,7 +121,7 @@ def stepForward_2(
     alpha = 1 / (1 + mu * c[i] * L_i)
     terme = 0
     for j in range(num_agents):
-        if G[i, j] == 1:
+        if G[i, j] > 0:
             terme += (G[i, j] / D[i]) * theta[j]
     terme -= mu * c[i] * lr.compute_grad(theta[i], X[i], y[i])
 
@@ -147,7 +147,7 @@ def stepForwardPrivate(
         alpha = 1 / (1 + mu * c[i] * L_i)
         terme = 0
         for j in range(num_agents):
-            if G[i, j] == 1:
+            if G[i, j] > 0:
                 terme += (G[i, j] / D[i]) * theta[j]
         terme -= mu * c[i] * lr.compute_grad(theta[i], X[i], y[i])
         s = 2 * L_0 / (epsilon * X[i].shape[0])
@@ -176,7 +176,7 @@ def stepForwardPrivate_2(
     alpha = 1 / (1 + mu * c[i] * L_i)
     terme = 0
     for j in range(num_agents):
-        if G[i, j] == 1:
+        if G[i, j] > 0:
             terme += (G[i, j] / D[i]) * theta[j]
     terme -= mu * c[i] * lr.compute_grad(theta[i], X[i], y[i])
     s = 2 * L_0 / (epsilon * X[i].shape[0])
@@ -205,7 +205,7 @@ def stepForwardPrivate_L2(
     alpha = 1 / (1 + mu * c[i] * L_i)
     terme = 0
     for j in range(num_agents):
-        if G[i, j] == 1:
+        if G[i, j] > 0:
             terme += (G[i, j] / D[i]) * theta[j]
     terme -= mu * c[i] * lr.compute_gradL2(theta[i], X[i], y[i], lambda_)
     s = 2 * L_0 / (epsilon * X[i].shape[0])
@@ -228,3 +228,19 @@ def computeLMax(D, c, mu, L_0, X_agent):
         L_i = 0.25 * np.sum(np.linalg.norm(X_agent[i], axis=1) ** 2)
         L = max(L, D[i]* (1 + mu*c[i] * L_i))
     return L
+
+def construct_G_D(num_agents):
+    G = np.zeros((num_agents, num_agents))
+    D = np.zeros(num_agents)
+        
+    for i in range(num_agents):
+        for j in range(i+1, num_agents):
+            if j <= i+3 and j >= i-3:
+                G[i,j] = np.random.rand()
+                G[j,i] = G[i, j]  
+        G[i, i] = 0
+
+    for i in range(num_agents):
+        D[i] = np.sum(G[i,:])
+    
+    return G, D
