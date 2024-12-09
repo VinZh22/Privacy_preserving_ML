@@ -186,3 +186,45 @@ def stepForwardPrivate_2(
     theta[i] = (1 - alpha) * theta[i] + alpha * terme
 
     return theta
+
+def stepForwardPrivate_L2(
+    theta: np.ndarray,
+    X: np.ndarray,
+    y: np.ndarray,
+    i: int,
+    num_agents: int = 10,
+    mu:float = 0.05,
+    lambda_ = 0.05,
+    c: np.ndarray = None,
+    G: np.ndarray = None,
+    D: np.ndarray = None,
+    L_0: np.ndarray = None,
+    epsilon: float = None,
+) -> np.ndarray:
+    L_i = 0.25 * np.sum(np.linalg.norm(X[i], axis=1) ** 2)
+    alpha = 1 / (1 + mu * c[i] * L_i)
+    terme = 0
+    for j in range(num_agents):
+        if G[i, j] == 1:
+            terme += (G[i, j] / D[i]) * theta[j]
+    terme -= mu * c[i] * lr.compute_gradL2(theta[i], X[i], y[i], lambda_)
+    s = 2 * L_0 / (epsilon * X[i].shape[0])
+    noise = np.random.laplace(0, s, theta[i].shape[0])
+
+    terme += noise
+    theta[i] = (1 - alpha) * theta[i] + alpha * terme
+
+    return theta
+
+def computeSigma(D, c, mu, L_0, nb_agent, lambda_ = 0.05):
+    res = 100000
+    for i in range(nb_agent):
+        res = min(res, mu * c[i] * D[i] * lambda_)
+    return res
+
+def computeLMax(D, c, mu, L_0, X_agent):
+    L = 0
+    for i in range(len(D)):
+        L_i = 0.25 * np.sum(np.linalg.norm(X_agent[i], axis=1) ** 2)
+        L = max(L, D[i]* (1 + mu*c[i] * L_i))
+    return L
