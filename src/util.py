@@ -191,3 +191,6 @@ def shift_non_zero_costs_to_front(costs):
         )
 
     return reduced_array
+
+def moving_average(data, window_size):
+    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
