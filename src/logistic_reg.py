@@ -202,3 +202,15 @@ def accuracyAll(num_agents, theta, X, y) -> float:
         individual_acc[i] = accuracy(theta[i], X[i], y[i])
     acc = np.mean(individual_acc)
     return acc
+
+def accuracyMajorityVote(num_agents, theta, X, y) -> float:
+    """Works only for the testing set (no individual X / y per agent)"""
+    predictions = np.zeros((num_agents, X.shape[0]))
+    for i in range(num_agents):
+        probs = sigmoid(X @ theta[i])
+        predictions[i] = (probs >= 0.5).astype(int)
+        
+    maj_vote = (np.sum(predictions, axis=0) >= (predictions.shape[0] / 2)).astype(int)
+    accuracy = np.mean(maj_vote == y)
+
+    return accuracy
