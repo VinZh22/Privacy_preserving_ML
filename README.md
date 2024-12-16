@@ -9,4 +9,4 @@ Goals :
 
 The basic functions are in the src file. `logistic_reg.py` for the regression (with the cost function, its gradient and how to compute the accuracy), and `privacy_ml.py` used for the training of $\Theta$ with the given protocol.
 
-To install the modules, do : `pip install -r requirements.txt for the modules`
+To install the modules, do : `pip install -r requirements.txt`
